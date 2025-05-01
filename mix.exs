@@ -6,8 +6,10 @@ defmodule PayloadcmsGraphqlClient.MixProject do
       app: :payloadcms_graphql_client,
       version: "0.1.0",
       elixir: "~> 1.17",
-      start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      description: "Build static pages into a Phoenix application at compile time",
+      package: package(),
+      start_permanent: Mix.env() == :prod
     ]
   end
 
@@ -19,7 +21,18 @@ defmodule PayloadcmsGraphqlClient.MixProject do
 
   defp deps do
     [
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:req, ">= 0.0.0"}
     ]
+  end
+
+  defp package do
+    %{
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/joeyates/payloadcms_graphql_client"
+      },
+      maintainers: ["Joe Yates"]
+    }
   end
 end
