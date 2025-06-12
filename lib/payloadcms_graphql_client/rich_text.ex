@@ -3,6 +3,8 @@ defmodule PayloadcmsGraphqlClient.RichText do
   Conveniences for handling Payload CMS rich text fields.
   """
 
+  import Bitwise
+
   @custom_renderer_key %{
     "inlineBlock" => :inline_block,
     "upload" => :upload
@@ -59,17 +61,50 @@ defmodule PayloadcmsGraphqlClient.RichText do
     end
   end
 
-  def render(%{type: "link", fields: %{url: url, newTab: true}, children: children}, options) do
-    [~s(<a href="#{url}" target="_blank">)] ++
-      Enum.flat_map(children, &render(&1, options)) ++ ["</a>"]
+  def render(%{type: "link", fields: %{url: url} = fields, children: children} = node, options) do
+    case renderer(:link, options) do
+      nil ->
+        new_tab = Map.get(fields, :newTab, false)
+        target = if new_tab, do: "_blank", else: "_self"
+
+        [~s(<a href="#{url}" target="#{target}">)] ++
+          Enum.flat_map(children, &render(&1, options)) ++ ["</a>"]
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
+  def render(%{type: "text", format: format} = node, options) when (format &&& 1) == 1 do
+    format = bxor(format, 1)
+    node = Map.put(node, :format, format)
+    ["<b>"] ++ render(node, options) ++ ["</b>"]
+  end
+
+  def render(%{type: "text", format: format} = node, options) when (format &&& 2) == 2 do
+    format = bxor(format, 2)
+    node = Map.put(node, :format, format)
+    ["<em>"] ++ render(node, options) ++ ["</em>"]
+  end
+
+  def render(%{type: "text", format: format} = node, options) when (format &&& 64) == 64 do
+    format = bxor(format, 64)
+    node = Map.put(node, :format, format)
+    ["<sup>"] ++ render(node, options) ++ ["</sup>"]
   end
 
   def render(%{type: "text", text: text}, _options) do
     [text]
   end
 
-  def render(%{type: "horizontalrule"}, _options) do
-    ["<hr>"]
+  def render(%{type: "horizontalrule"} = node, options) do
+    case renderer(:horizontalrule, options) do
+      nil ->
+        ["<hr>"]
+
+      renderer ->
+        renderer.(node, options)
+    end
   end
 
   def render(%{type: type} = node, options) when type in @custom_renderer_required do
