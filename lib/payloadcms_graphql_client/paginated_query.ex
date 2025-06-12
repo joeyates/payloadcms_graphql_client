@@ -31,10 +31,10 @@ defmodule PayloadcmsGraphqlClient.PaginatedQuery do
 
   defp to_query(%__MODULE__{} = paginated) do
     options = Map.put(paginated.query.options, :page, paginated.page)
-    %Query{paginated.query | options: options}
+    %{paginated.query | options: options}
   end
 
   defp next_page(%__MODULE__{} = paginated) do
-    %__MODULE__{paginated | page: paginated.page + 1}
+    %{paginated | page: paginated.page + 1}
   end
 end
