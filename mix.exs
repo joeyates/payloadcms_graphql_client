@@ -4,7 +4,7 @@ defmodule PayloadcmsGraphqlClient.MixProject do
   def project do
     [
       app: :payloadcms_graphql_client,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.17",
       deps: deps(),
       description: "Build static pages into a Phoenix application at compile time",
