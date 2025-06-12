@@ -148,7 +148,7 @@ defmodule PayloadcmsGraphqlClient.RichText do
         No `#{name}` function supplied in options.renders
 
         Supplied renderers:
-        #{inspect(Map.keys(renderers))}
+        #{renderers |> Map.keys() |> inspect()}
         """
       }
     end
@@ -161,7 +161,7 @@ defmodule PayloadcmsGraphqlClient.RichText do
       Can't find renderer for `#{name}` as
       no `:renderers` were supplied in options:
 
-      options: #{inspect(Map.keys(options))}
+      options: #{options |> Map.keys() |> inspect()}
       """
     }
   end
