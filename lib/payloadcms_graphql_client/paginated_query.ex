@@ -17,15 +17,32 @@ defmodule PayloadcmsGraphqlClient.PaginatedQuery do
     |> handle_response(paginated)
   end
 
+  def fetch!(%__MODULE__{} = paginated) do
+    {:ok, results} = fetch(paginated)
+    results
+  end
+
+  defp handle_response(%Req.Response{status: 200, body: %{errors: errors}}, _paginated) do
+    {:error, inspect(errors)}
+  end
+
   defp handle_response(%Req.Response{status: 200, body: body}, paginated) do
     has_next_page = get_in(body, [:data, paginated.query.name, :hasNextPage])
     results = get_in(body, [:data, paginated.query.name, :docs])
 
     if has_next_page do
       paginated = next_page(paginated)
-      results ++ fetch(paginated)
+
+      case fetch(paginated) do
+        {:ok, next_results} ->
+          results = results ++ next_results
+          {:ok, results}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
     else
-      results
+      {:ok, results}
     end
   end
 

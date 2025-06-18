@@ -12,9 +12,26 @@ defmodule PayloadcmsGraphqlClient.Client do
     Req.post!(
       query.endpoint,
       json: %{query: query_string},
-      headers: [{"Content-Type", "application/json"}],
+      headers: headers(),
       connect_options: [timeout: timeout],
       decode_json: [keys: :atoms]
     )
+  end
+
+  defp headers() do
+    headers = [
+      {"Content-Type", "application/json"}
+    ]
+
+    api_key = Application.get_env(:payloadcms_graphql_client, :api_key)
+
+    if api_key do
+      collection_slug =
+        Application.get_env(:payloadcms_graphql_client, :api_key_colection_slug, "users")
+
+      headers ++ [{"Authorization", "#{collection_slug} API-Key #{api_key}"}]
+    else
+      headers
+    end
   end
 end
