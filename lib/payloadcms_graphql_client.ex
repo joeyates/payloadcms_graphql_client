@@ -53,9 +53,14 @@ defmodule PayloadcmsGraphqlClient do
     |> handle_one_doc_query(name)
   end
 
+  defp handle_one_doc_query(%Req.Response{status: 200, body: %{errors: errors}}, _name) do
+    {:error, inspect(errors)}
+  end
+
   defp handle_one_doc_query(%Req.Response{status: 200, body: body}, name) do
     body
     |> get_in([:data, name, :docs])
     |> hd()
+    |> then(&{:ok, &1})
   end
 end
