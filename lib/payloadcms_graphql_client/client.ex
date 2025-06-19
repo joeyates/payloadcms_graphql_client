@@ -27,7 +27,7 @@ defmodule PayloadcmsGraphqlClient.Client do
 
     if api_key do
       collection_slug =
-        Application.get_env(:payloadcms_graphql_client, :api_key_colection_slug, "users")
+        Application.get_env(:payloadcms_graphql_client, :api_key_collection_slug, "users")
 
       headers ++ [{"Authorization", "#{collection_slug} API-Key #{api_key}"}]
     else
