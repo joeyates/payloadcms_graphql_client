@@ -94,6 +94,36 @@ defmodule PayloadcmsGraphqlClient.RichText do
     end
   end
 
+  def render(%{type: "table"} = node, options) do
+    case renderer(:table, options) do
+      nil ->
+        render_table(node, options)
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
+  def render(%{type: "tablerow"} = node, options) do
+    case renderer(:tablerow, options) do
+      nil ->
+        render_tablerow(node, options)
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
+  def render(%{type: "tablecell"} = node, options) do
+    case renderer(:tablecell, options) do
+      nil ->
+        render_tablecell(node, options)
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
   def render(%{type: "text", format: format} = node, options) when (format &&& 1) == 1 do
     format = bxor(format, 1)
     node = Map.put(node, :format, format)
@@ -159,6 +189,42 @@ defmodule PayloadcmsGraphqlClient.RichText do
       """
 
     raise message
+  end
+
+  def render_table(node, options) do
+    ["<table>"] ++
+      Enum.flat_map(node.children, &render(&1, options)) ++
+      ["</table>"]
+  end
+
+  def render_tablerow(node, options) do
+    ["<tr>"] ++ Enum.flat_map(node.children, &render(&1, options)) ++ ["</tr>"]
+  end
+
+  def render_tablecell(node, options) do
+    tag =
+      if node.headerState == 1 do
+        "th"
+      else
+        "td"
+      end
+
+    attributes =
+      if node.colSpan != 1 do
+        " colspan=\"#{node.colSpan}\""
+      else
+        ""
+      end
+
+    attributes =
+      if node.rowSpan != 1 do
+        attributes <> " rowspan=\"#{node.rowSpan}\""
+      else
+        attributes
+      end
+
+    ["<#{tag}#{attributes}>"] ++
+      Enum.flat_map(node.children, &render(&1, options)) ++ ["</#{tag}>"]
   end
 
   defp renderer!(name, %{renderers: renderers} = options) do
