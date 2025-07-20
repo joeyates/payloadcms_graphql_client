@@ -35,41 +35,23 @@ defmodule PayloadcmsGraphqlClient.RichText do
   def render(%{type: "list", tag: "ul"} = node, options) do
     case renderer(:unordered_list, options) do
       nil ->
-        items =
-          Enum.flat_map(
-            node.children,
-            fn list_item ->
-              ["<li>"] ++
-                Enum.flat_map(list_item.children, &render(&1, options)) ++
-                ["</li>"]
-            end
-          )
-
-        ["<ul>"] ++ items ++ ["</ul>"]
+        ["<ul>"] ++
+          Enum.flat_map(node.children, &render(&1, options)) ++
+          ["</ul>"]
 
       renderer ->
         renderer.(node, options)
     end
   end
 
-  def render(%{type: "paragraph"} = node, options) do
-    case renderer(:paragraph, options) do
+  def render(%{type: "list", tag: "ol"} = node, options) do
+    case renderer(:ordered_list, options) do
       nil ->
-        ["<p>"] ++ Enum.flat_map(node.children, &render(&1, options)) ++ ["</p>"]
-
-      renderer ->
-        renderer.(node, options)
-    end
-  end
-
-  def render(%{type: "list"} = node, options) do
-    case renderer(:list, options) do
-      nil ->
-        tag = node.tag
         attributes = if node[:start], do: " start=\"#{node.start}\"", else: ""
 
-        ["<#{tag}#{attributes}>"] ++
-          Enum.flat_map(node.children, &render(&1, options)) ++ ["</#{tag}>"]
+        ["<ol#{attributes}>"] ++
+          Enum.flat_map(node.children, &render(&1, options)) ++
+          ["</ol>"]
 
       renderer ->
         renderer.(node, options)
@@ -80,6 +62,16 @@ defmodule PayloadcmsGraphqlClient.RichText do
     case renderer(:list_item, options) do
       nil ->
         ["<li>"] ++ Enum.flat_map(node.children, &render(&1, options)) ++ ["</li>"]
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
+  def render(%{type: "paragraph"} = node, options) do
+    case renderer(:paragraph, options) do
+      nil ->
+        ["<p>"] ++ Enum.flat_map(node.children, &render(&1, options)) ++ ["</p>"]
 
       renderer ->
         renderer.(node, options)
