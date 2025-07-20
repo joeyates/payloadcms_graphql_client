@@ -62,6 +62,30 @@ defmodule PayloadcmsGraphqlClient.RichText do
     end
   end
 
+  def render(%{type: "list"} = node, options) do
+    case renderer(:list, options) do
+      nil ->
+        tag = node.tag
+        attributes = if node[:start], do: " start=\"#{node.start}\"", else: ""
+
+        ["<#{tag}#{attributes}>"] ++
+          Enum.flat_map(node.children, &render(&1, options)) ++ ["</#{tag}>"]
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
+  def render(%{type: "listitem"} = node, options) do
+    case renderer(:list_item, options) do
+      nil ->
+        ["<li>"] ++ Enum.flat_map(node.children, &render(&1, options)) ++ ["</li>"]
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
   def render(%{type: "link", fields: %{url: url} = fields, children: children} = node, options) do
     case renderer(:link, options) do
       nil ->
