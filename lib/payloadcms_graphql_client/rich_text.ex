@@ -6,6 +6,7 @@ defmodule PayloadcmsGraphqlClient.RichText do
   import Bitwise
 
   @custom_renderer_key %{
+    "block" => :block,
     "inlineBlock" => :inline_block,
     "upload" => :upload
   }
