@@ -78,6 +78,8 @@ defmodule PayloadcmsGraphqlClient.RichText do
     end
   end
 
+  def render(%{type: "linebreak"}, _options), do: ["<br>"]
+
   def render(%{type: "link", fields: %{url: url} = fields, children: children} = node, options) do
     case renderer(:link, options) do
       nil ->
