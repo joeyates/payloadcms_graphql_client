@@ -104,6 +104,12 @@ defmodule PayloadcmsGraphqlClient.RichText do
     ["<em>"] ++ render(node, options) ++ ["</em>"]
   end
 
+  def render(%{type: "text", format: format} = node, options) when (format &&& 16) == 16 do
+    format = bxor(format, 16)
+    node = Map.put(node, :format, format)
+    ["<code>"] ++ render(node, options) ++ ["</code>"]
+  end
+
   def render(%{type: "text", format: format} = node, options) when (format &&& 64) == 64 do
     format = bxor(format, 64)
     node = Map.put(node, :format, format)
