@@ -42,6 +42,13 @@ defmodule PayloadcmsGraphqlClient.Query do
       |> Enum.join(", ")
     end
 
+    def stringify_option(value) when is_map(value) do
+      value
+      |> Enum.map(fn {k, v} -> "#{k}: #{stringify_option(v)}" end)
+      |> Enum.join(", ")
+      |> then(&"{#{&1}}")
+    end
+
     def stringify_option(value) when is_binary(value), do: inspect(value)
 
     def stringify_option(value), do: Kernel.to_string(value)
