@@ -26,6 +26,10 @@ defmodule PayloadcmsGraphqlClient.PaginatedQuery do
     {:error, inspect(errors)}
   end
 
+  defp handle_response(%Req.Response{status: 200, body: [%{message: message}]}, _paginated) do
+    {:error, message}
+  end
+
   defp handle_response(%Req.Response{status: 200, body: body}, paginated) do
     has_next_page = get_in(body, [:data, paginated.query.name, :hasNextPage])
     results = get_in(body, [:data, paginated.query.name, :docs])
