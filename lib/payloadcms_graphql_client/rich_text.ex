@@ -203,7 +203,7 @@ defmodule PayloadcmsGraphqlClient.RichText do
 
   def render_tablecell(node, options) do
     tag =
-      if node.headerState == 1 do
+      if node.headerState > 0 do
         "th"
       else
         "td"

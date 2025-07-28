@@ -4,7 +4,7 @@ defmodule PayloadcmsGraphqlClient.MixProject do
   def project do
     [
       app: :payloadcms_graphql_client,
-      version: "0.1.9",
+      version: "0.1.10",
       elixir: "~> 1.17",
       deps: deps(),
       description: "Call the PayloadCMS GraphQL API",
