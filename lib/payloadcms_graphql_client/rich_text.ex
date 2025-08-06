@@ -262,4 +262,38 @@ defmodule PayloadcmsGraphqlClient.RichText do
   end
 
   defp renderer(_name, _options), do: nil
+
+  @doc """
+  Performs a depth-first traversal of a rich text node, using an accumulator.
+
+  Like Elixir's Macro.traverse/4, it returns the (possibly modified node) and the accumulator.
+  The node may be modified during invocation of the `pre` function in the pre-order phase,
+  or the `post` function in the posst-order phase.
+  """
+
+  @spec traverse(map(), any(), (map(), any() -> {map(), any()}), (map(), any() -> {map(), any()})) ::
+          {map(), any()}
+  def traverse(%{root: root} = node, acc, pre, post) do
+    {root, acc} = traverse(root, acc, pre, post)
+    {Map.put(node, :root, root), acc}
+  end
+
+  def traverse(%{children: _children} = node, acc, pre, post) do
+    {node, acc} = pre.(node, acc)
+
+    {updated_children, acc} =
+      Enum.reduce(node.children, {[], acc}, fn child, {updated_children, acc} ->
+        {child, acc} = traverse(child, acc, pre, post)
+        {[child | updated_children], acc}
+      end)
+
+    node = Map.put(node, :children, Enum.reverse(updated_children))
+
+    post.(node, acc)
+  end
+
+  def traverse(node, acc, pre, post) do
+    {node, acc} = pre.(node, acc)
+    post.(node, acc)
+  end
 end
