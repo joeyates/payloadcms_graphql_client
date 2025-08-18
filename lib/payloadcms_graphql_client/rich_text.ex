@@ -22,6 +22,17 @@ defmodule PayloadcmsGraphqlClient.RichText do
     |> Enum.join()
   end
 
+  def render(%{type: "autolink", fields: fields} = node, options) do
+    case renderer(:autolink, options) do
+      nil ->
+        url = fields.url
+        [~s(<a href="#{url}">)] ++ Enum.flat_map(node.children, &render(&1, options)) ++ ["</a>"]
+
+      renderer ->
+        renderer.(node, options)
+    end
+  end
+
   def render(%{type: "heading", tag: tag} = node, options) do
     case renderer(:heading, options) do
       nil ->
