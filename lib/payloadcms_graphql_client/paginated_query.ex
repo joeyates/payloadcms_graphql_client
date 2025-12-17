@@ -50,6 +50,10 @@ defmodule PayloadcmsGraphqlClient.PaginatedQuery do
     end
   end
 
+  defp handle_response(%Req.Response{status: status} = response, _paginated) do
+    {:error, "GraphQL query failed with status #{status}. Response: #{inspect(response)}"}
+  end
+
   defp to_query(%__MODULE__{} = paginated) do
     options = Map.put(paginated.query.options, :page, paginated.page)
     %{paginated.query | options: options}

@@ -63,4 +63,8 @@ defmodule PayloadcmsGraphqlClient do
     |> hd()
     |> then(&{:ok, &1})
   end
+
+  defp handle_one_doc_query(%Req.Response{status: status} = response, _name) do
+    {:error, "GraphQL query failed with status #{status}. Response: #{inspect(response)}"}
+  end
 end
