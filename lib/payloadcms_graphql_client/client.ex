@@ -24,16 +24,18 @@ defmodule PayloadcmsGraphqlClient.Client do
       {"Content-Type", "application/json"}
     ]
 
-    headers ++ autorization_header()
+    headers ++ autorization_header() ++ extra_headers()
   end
 
   defp autorization_header() do
-    auth_values = Enum.filter([basic_auth_value(), api_key_value()], & &1)
-
-    case auth_values do
-      [] -> []
-      values -> [{"Authorization", Enum.join(values, ", ")}]
+    case api_key_value() do
+      nil -> []
+      value -> [{"Authorization", value}]
     end
+  end
+
+  defp extra_headers() do
+    Application.get_env(:payloadcms_graphql_client, :extra_headers, [])
   end
 
   defp api_key_value() do
@@ -49,29 +51,7 @@ defmodule PayloadcmsGraphqlClient.Client do
     end
   end
 
-  defp basic_auth_value() do
-    case {basic_auth_user(), basic_auth_password()} do
-      {nil, _} ->
-        nil
-
-      {_, nil} ->
-        nil
-
-      {user, password} ->
-        encoded = Base.encode64("#{user}:#{password}")
-        "Basic #{encoded}"
-    end
-  end
-
   defp api_key() do
     Application.get_env(:payloadcms_graphql_client, :api_key)
-  end
-
-  defp basic_auth_password() do
-    Application.get_env(:payloadcms_graphql_client, :basic_auth_password)
-  end
-
-  defp basic_auth_user() do
-    Application.get_env(:payloadcms_graphql_client, :basic_auth_user)
   end
 end
